@@ -19,6 +19,11 @@ jobs:
       with:
         dotnet-version: '8.0.x' # Specify the .NET 8.0 SDK version
 
+    - name: Set Environment Variables
+      run: |
+           echo "DOTNET_CLI_HOME=$HOME" >> $GITHUB_ENV
+           echo "HOME=$HOME" >> $GITHUB_ENV
+
     - name: Install dependencies
       run: dotnet restore test-proj.csproj
     - name: Build project
