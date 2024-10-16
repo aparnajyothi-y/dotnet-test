@@ -26,11 +26,8 @@ on:
   workflow_dispatch:
 
 jobs:
- test_go_repo:
-  strategy:
-      matrix:
-           os: [windows-latest, ubuntu-latest]
-  runs-on: ${{ matrix.os }}
+ test_dotnet_repo:
+  runs-on: ubuntu-latest
   steps:
       - uses: actions/checkout@v4
 
