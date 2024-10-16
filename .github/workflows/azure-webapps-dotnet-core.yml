@@ -21,14 +21,16 @@ name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
   DOTNET_VERSION: '8'                 # set this to the .NET Core version to use
-
+  
 on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: windows-latest
-
+ test_go_repo:
+  strategy:
+      matrix:
+           os: [windows-latest, ubuntu-latest]
+  runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,4 +45,4 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp" test-proj.csproj
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp test-proj.csproj
