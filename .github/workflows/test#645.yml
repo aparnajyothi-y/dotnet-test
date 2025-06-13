@@ -1,0 +1,17 @@
+name: .NET Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    name: Setup .NET on all platforms
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-13, windows-latest, ubuntu-latest]
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
