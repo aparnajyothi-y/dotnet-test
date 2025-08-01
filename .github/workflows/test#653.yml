@@ -2,12 +2,14 @@ name: 'demo-test'
 
 on:
   workflow_dispatch:
+  
+
 jobs:
   demonstrate:
-    runs-on: Ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: 'setup-dotnet'
-        uses: 'actions/setup-dotnet@v4' # ratchet:actions/setup-dotnet@v4
+        uses: 'actions/setup-dotnet@v4'
         with:
           dotnet-version: '8.0.x'
 
