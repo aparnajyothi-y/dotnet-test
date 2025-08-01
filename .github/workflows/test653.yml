@@ -6,7 +6,7 @@ on:
 
 jobs:
   demonstrate:
-    runs-on: ubuntu-latest
+    runs-on: Ubuntu-latest
     steps:
       - name: 'setup-dotnet'
         uses: 'actions/setup-dotnet@v4'
