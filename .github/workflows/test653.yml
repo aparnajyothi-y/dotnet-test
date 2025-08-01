@@ -6,7 +6,7 @@ on:
 
 jobs:
   setup:
-    name: Setup .NET on all platforms
+    name: demo-test
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
