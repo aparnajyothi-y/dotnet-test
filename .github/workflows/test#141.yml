@@ -1,0 +1,29 @@
+name: Validate .NET SDK Cache Behavior
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dotnet-cache-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enable step debug logging
+        run: echo "ACTIONS_STEP_DEBUG=true" >> $GITHUB_ENV
+
+      - name: List .NET SDKs before setup-dotnet
+        run: dotnet --list-sdks || echo "No .NET SDKs installed"
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'   # Change to your target version
+
+      - name: List .NET SDKs after setup-dotnet
+        run: dotnet --list-sdks
+
+      - name: Show setup-dotnet logs
+        if: always()
+        run: |
+          echo "Check the logs above for messages like:"
+          echo "'Found in cache @ actions/tool-cache' or 'Downloading and installing .NET version'"
