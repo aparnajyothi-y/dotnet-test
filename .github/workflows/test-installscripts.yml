@@ -4,35 +4,34 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-architectures:
+  test-arch:
     runs-on: windows-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install .NET 8 (x64)
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-          architecture: x64
-
-      - name: Verify x64 installation
+      # Download dotnet-install script
+      - name: Download dotnet-install.ps1
         run: |
-          echo "=== X64 SDKs ==="
-          dotnet --list-sdks
-          echo "Path:"
-          where dotnet
+          Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
 
-      - name: Install .NET 8 (x86)
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-          architecture: x86
-
-      - name: Verify x86 installation
+  
+      - name: Install .NET 8 x64
         run: |
-          echo "=== X86 SDKs ==="
+          pwsh ./dotnet-install.ps1 -Version 8.0.x -Architecture x64
+
+      - name: Verify x64
+        run: |
+          echo "=== X64 Installed SDKs ==="
           dotnet --list-sdks
-          echo "Path:"
-          where dotnet
+
+    
+      - name: Install .NET 8 x86
+        run: |
+          pwsh ./dotnet-install.ps1 -Version 8.0.x -Architecture x86
+
+      - name: Verify x86
+        run: |
+          echo "=== X86 Installed SDKs ==="
+          dotnet --list-sdks
