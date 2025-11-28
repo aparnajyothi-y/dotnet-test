@@ -1,0 +1,38 @@
+name: Validate Dotnet Architectures
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-architectures:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET 8 (x64)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          architecture: x64
+
+      - name: Verify x64 installation
+        run: |
+          echo "=== X64 SDKs ==="
+          dotnet --list-sdks
+          echo "Path:"
+          where dotnet
+
+      - name: Install .NET 8 (x86)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          architecture: x86
+
+      - name: Verify x86 installation
+        run: |
+          echo "=== X86 SDKs ==="
+          dotnet --list-sdks
+          echo "Path:"
+          where dotnet
