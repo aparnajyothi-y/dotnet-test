@@ -1,0 +1,27 @@
+name: test-dotnet-root-removal
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - name: Print default DOTNET_ROOT
+        run: echo "Before: $DOTNET_ROOT"
+
+      - name: Unset DOTNET_ROOT
+        run: unset DOTNET_ROOT
+
+      - name: Print after unset
+        run: echo "After unset: $DOTNET_ROOT"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Show DOTNET_ROOT after setup
+        run: echo "After setup-dotnet: $DOTNET_ROOT"
+
+      - name: Validate dotnet runs
+        run: dotnet --info
