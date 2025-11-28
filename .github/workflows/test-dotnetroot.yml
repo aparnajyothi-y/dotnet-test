@@ -1,27 +1,38 @@
-name: test-dotnet-root-removal
+name: Dotnet Multi-Arch Install Test
 
-on: [workflow_dispatch]
+on:
+workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: macos-latest
-    steps:
-      - name: Print default DOTNET_ROOT
-        run: echo "Before:$DOTNET_ROOT"
+install-dotnet-arch:
+runs-on: windows-latest
+steps:
+- name: Checkout repo
+uses: actions/checkout@v3
 
-      - name: Unset DOTNET_ROOT
-        run: unset DOTNET_ROOT
+```
+  - name: Download dotnet-install script
+    run: Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "$env:TEMP\dotnet-install.ps1"
 
-      - name: Print after unset
-        run: echo "After unset:$DOTNET_ROOT"
+  - name: Install x64 SDK
+    run: |
+      pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\dotnet-install.ps1" `
+        -Version 8.0.416 `
+        -Architecture x64 `
+        -InstallDir "$env:USERPROFILE\dotnet_x64"
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+  - name: Install x86 SDK
+    run: |
+      pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\dotnet-install.ps1" `
+        -Version 8.0.416 `
+        -Architecture x86 `
+        -InstallDir "$env:USERPROFILE\dotnet_x86"
 
-      - name: Show DOTNET_ROOT after setup
-        run: echo "After setup-dotnet:$DOTNET_ROOT"
+  - name: List installed x64 SDKs
+    run: |
+      "$env:USERPROFILE\dotnet_x64\dotnet.exe" --list-sdks
 
-      - name: Validate dotnet runs
-        run: dotnet --info
+  - name: List installed x86 SDKs
+    run: |
+      "$env:USERPROFILE\dotnet_x86\dotnet.exe" --list-sdks
+```
