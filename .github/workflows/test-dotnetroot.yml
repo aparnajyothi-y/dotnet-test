@@ -1,38 +1,40 @@
-name: Dotnet Multi-Arch Install Test
+name: Test .NET Multiple Architectures on Windows
 
 on:
 workflow_dispatch:
 
 jobs:
-install-dotnet-arch:
+install-dotnet:
 runs-on: windows-latest
+
 steps:
-- name: Checkout repo
-uses: actions/checkout@v3
+  - name: Checkout repository
+    uses: actions/checkout@v3
 
-```
-  - name: Download dotnet-install script
-    run: Invoke-WebRequest -Uri "https://dot.net/v1/dotnet-install.ps1" -OutFile "$env:TEMP\dotnet-install.ps1"
-
-  - name: Install x64 SDK
+  - name: Set up PowerShell for script execution
     run: |
-      pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\dotnet-install.ps1" `
-        -Version 8.0.416 `
-        -Architecture x64 `
-        -InstallDir "$env:USERPROFILE\dotnet_x64"
+      Set-ExecutionPolicy Bypass -Scope Process -Force
 
-  - name: Install x86 SDK
+  - name: Install .NET SDK x64
     run: |
-      pwsh -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\dotnet-install.ps1" `
-        -Version 8.0.416 `
-        -Architecture x86 `
-        -InstallDir "$env:USERPROFILE\dotnet_x86"
+      $dotnetVersion = "8.0.416"
+      $arch = "x64"
+      Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
+      ./dotnet-install.ps1 -Version $dotnetVersion -Architecture $arch -InstallDir "$env:USERPROFILE\.dotnet\x64"
 
-  - name: List installed x64 SDKs
+  - name: Verify .NET SDK x64
     run: |
-      "$env:USERPROFILE\dotnet_x64\dotnet.exe" --list-sdks
+      $env:PATH="$env:USERPROFILE\.dotnet\x64;$env:PATH"
+      dotnet --list-sdks
 
-  - name: List installed x86 SDKs
+  - name: Install .NET SDK x86
     run: |
-      "$env:USERPROFILE\dotnet_x86\dotnet.exe" --list-sdks
-```
+      $dotnetVersion = "8.0.416"
+      $arch = "x86"
+      Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
+      ./dotnet-install.ps1 -Version $dotnetVersion -Architecture $arch -InstallDir "$env:USERPROFILE\.dotnet\x86"
+
+  - name: Verify .NET SDK x86
+    run: |
+      $env:PATH="$env:USERPROFILE\.dotnet\x86;$env:PATH"
+      dotnet --list-sdks
