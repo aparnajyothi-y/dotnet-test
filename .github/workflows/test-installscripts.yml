@@ -7,7 +7,6 @@ jobs:
 validate-windows-architecture:
 runs-on: windows-latest
 
-```
 steps:
   - name: Checkout
     uses: actions/checkout@v4
