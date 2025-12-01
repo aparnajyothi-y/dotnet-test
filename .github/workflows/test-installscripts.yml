@@ -1,7 +1,7 @@
 name: windows-arch-validation
 
 on:
-workflow_dispatch:
+workflow_dispatch
 
 jobs:
 validate-windows-architecture:
