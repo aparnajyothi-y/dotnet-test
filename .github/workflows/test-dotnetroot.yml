@@ -1,40 +1,30 @@
-name: Test .NET Multiple Architectures on Windows
+name: Test Custom DOTNET_INSTALL_DIR
 
-on:
-workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
-install-dotnet:
-runs-on: windows-latest
+  test-dotnet-root:
+    runs-on: macos-latest
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v3
+    env:
+      DOTNET_INSTALL_DIR: /Users/runner/custom-dotnet   # custom location
 
-  - name: Set up PowerShell for script execution
-    run: |
-      Set-ExecutionPolicy Bypass -Scope Process -Force
+    steps:
+      - name: Show initial DOTNET_ROOT from image
+        run: echo "Before Action:DOTNET_ROOT=$DOTNET_ROOT"
 
-  - name: Install .NET SDK x64
-    run: |
-      $dotnetVersion = "8.0.416"
-      $arch = "x64"
-      Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
-      ./dotnet-install.ps1 -Version $dotnetVersion -Architecture $arch -InstallDir "$env:USERPROFILE\.dotnet\x64"
+      - name: Unset DOTNET_ROOT to simulate its removal from image
+        run: unset DOTNET_ROOT
 
-  - name: Verify .NET SDK x64
-    run: |
-      $env:PATH="$env:USERPROFILE\.dotnet\x64;$env:PATH"
-      dotnet --list-sdks
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-  - name: Install .NET SDK x86
-    run: |
-      $dotnetVersion = "8.0.416"
-      $arch = "x86"
-      Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
-      ./dotnet-install.ps1 -Version $dotnetVersion -Architecture $arch -InstallDir "$env:USERPROFILE\.dotnet\x86"
+      - name: Show after-action DOTNET_ROOT
+        run: |
+          echo "After Action: DOTNET_ROOT=$DOTNET_ROOT"
+          ls -la "$DOTNET_ROOT"
 
-  - name: Verify .NET SDK x86
-    run: |
-      $env:PATH="$env:USERPROFILE\.dotnet\x86;$env:PATH"
-      dotnet --list-sdks
+      - name: Verify dotnet --info
+        run: dotnet --info
