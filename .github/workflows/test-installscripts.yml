@@ -26,4 +26,3 @@ steps:
       echo "Windows only supports native architecture installation through setup-dotnet"
       echo "No alternate architecture installation is performed"
       dotnet --info
-```
