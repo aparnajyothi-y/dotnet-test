@@ -5,7 +5,7 @@ on:
 
 jobs:
   validate-architectures:
-    runs-on: macos-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
