@@ -1,44 +1,45 @@
-name: Validate setup-dotnet architecture behavior (macOS)
+name: macos-arch-validation
 
 on:
   workflow_dispatch:
 
 jobs:
-  inspect-architecture:
+  validate-architectures:
     runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 1. Setup .NET using the current action (no architecture picker available)
-      - name: Setup .NET (default behavior)
+      - name: Setup .NET (arm64 - default behavior)
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      # 2. Verify what architecture was installed
-      - name: Show dotnet info
-        run: dotnet --info
-
-      # 3. Print resolved PATH + toolcache
-      - name: Show resolved dotnet path
+      - name: Print arm64 dotnet info
         run: |
-          which dotnet
-          ls -R "$(dirname "$(which dotnet)")"
+          echo "=== ARM64 dotnet (setup-dotnet default) ==="
+          dotnet --info
 
-      # 4. Validate OS architecture
-      - name: Show system architecture
-        run: uname -m
-
-      # (Optional) 5. Try manually installing x64 to show that setup-dotnet cannot do it natively
-      - name: Install Rosetta manually
+      - name: Install Rosetta (required for x64)
         run: |
-          sudo softwareupdate --install-rosetta --agree-to-license || true
+          echo "Installing Rosetta..."
+          sudo softwareupdate --install-rosetta --agree-to-license
 
-      - name: Manually install x64 .NET for comparison
+      - name: Download x64 .NET SDK manually
         run: |
+          echo "=== Downloading x64 SDK ==="
           mkdir -p manual-x64
-          curl -L https://download.visualstudio.microsoft.com/download/pr/.../dotnet-sdk-8.0.x-osx-x64.tar.gz -o x64.tar.gz
+          curl -L \
+            https://dotnetcli.azureedge.net/dotnet/Sdk/8.0.416/dotnet-sdk-8.0.416-osx-x64.tar.gz \
+            -o x64.tar.gz
+
+      - name: Extract x64 SDK
+        run: |
+          echo "=== Extracting x64 SDK ==="
           tar -xzf x64.tar.gz -C manual-x64
+
+      - name: Print x64 dotnet info (Rosetta)
+        run: |
+          echo "=== X64 dotnet (manual install under Rosetta) ==="
           ./manual-x64/dotnet --info || true
