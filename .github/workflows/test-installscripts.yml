@@ -1,28 +1,30 @@
-name: windows-arch-validation
+name: macos-arch-validation
 
 on:
-workflow_dispatch
+  workflow_dispatch:
 
 jobs:
-validate-windows-architecture:
-runs-on: windows-latest
+  validate-architectures:
+    runs-on: macos-latest
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Setup .NET SDK
-    uses: actions/setup-dotnet@v4
-    with:
-      dotnet-version: 8.0.x
-
-  - name: Print .NET SDK info
-    run: |
-      echo "=== Windows native dotnet (setup-dotnet default) ==="
-      dotnet --info
-
-  - name: Attempt manual x64 install (simulate non-native)
-    run: |
-      echo "Windows only supports native architecture installation through setup-dotnet"
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+    
+      - name: Print .NET SDK info
+        run: |
+          echo "=== Windows native dotnet (setup-dotnet default) ==="
+          dotnet --info
+    
+      - name: Attempt manual x64 install (simulate non-native)
+        run: |
+          echo "Windows only supports native architecture installation through setup-dotnet"
+          
       echo "No alternate architecture installation is performed"
       dotnet --info
+```
