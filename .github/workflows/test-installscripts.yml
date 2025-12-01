@@ -1,37 +1,44 @@
-name: Validate Dotnet Architectures
+name: Validate setup-dotnet architecture behavior (macOS)
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-arch:
-    runs-on: windows-latest
+  inspect-architecture:
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Download dotnet-install script
-      - name: Download dotnet-install.ps1
-        run: |
-          Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
+      # 1. Setup .NET using the current action (no architecture picker available)
+      - name: Setup .NET (default behavior)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-  
-      - name: Install .NET 8 x64
-        run: |
-          pwsh ./dotnet-install.ps1 -Version 8.0.x -Architecture x64
+      # 2. Verify what architecture was installed
+      - name: Show dotnet info
+        run: dotnet --info
 
-      - name: Verify x64
+      # 3. Print resolved PATH + toolcache
+      - name: Show resolved dotnet path
         run: |
-          echo "=== X64 Installed SDKs ==="
-          dotnet --list-sdks
+          which dotnet
+          ls -R "$(dirname "$(which dotnet)")"
 
-    
-      - name: Install .NET 8 x86
-        run: |
-          pwsh ./dotnet-install.ps1 -Version 8.0.x -Architecture x86
+      # 4. Validate OS architecture
+      - name: Show system architecture
+        run: uname -m
 
-      - name: Verify x86
+      # (Optional) 5. Try manually installing x64 to show that setup-dotnet cannot do it natively
+      - name: Install Rosetta manually
         run: |
-          echo "=== X86 Installed SDKs ==="
-          dotnet --list-sdks
+          sudo softwareupdate --install-rosetta --agree-to-license || true
+
+      - name: Manually install x64 .NET for comparison
+        run: |
+          mkdir -p manual-x64
+          curl -L https://download.visualstudio.microsoft.com/download/pr/.../dotnet-sdk-8.0.x-osx-x64.tar.gz -o x64.tar.gz
+          tar -xzf x64.tar.gz -C manual-x64
+          ./manual-x64/dotnet --info || true
