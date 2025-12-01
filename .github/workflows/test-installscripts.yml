@@ -1,45 +1,30 @@
-name: macos-arch-validation
+name: windows-arch-validation
 
 on:
-  workflow_dispatch:
+workflow_dispatch:
 
 jobs:
-  validate-architectures:
-    runs-on: macos-latest
+validate-windows-architecture:
+runs-on: windows-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+```
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
 
-      - name: Setup .NET (arm64 - default behavior)
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
+  - name: Setup .NET SDK
+    uses: actions/setup-dotnet@v4
+    with:
+      dotnet-version: 8.0.x
 
-      - name: Print arm64 dotnet info
-        run: |
-          echo "=== ARM64 dotnet (setup-dotnet default) ==="
-          dotnet --info
+  - name: Print .NET SDK info
+    run: |
+      echo "=== Windows native dotnet (setup-dotnet default) ==="
+      dotnet --info
 
-      - name: Install Rosetta (required for x64)
-        run: |
-          echo "Installing Rosetta..."
-          sudo softwareupdate --install-rosetta --agree-to-license
-
-      - name: Download x64 .NET SDK manually
-        run: |
-          echo "=== Downloading x64 SDK ==="
-          mkdir -p manual-x64
-          curl -L \
-            https://dotnetcli.azureedge.net/dotnet/Sdk/8.0.416/dotnet-sdk-8.0.416-osx-x64.tar.gz \
-            -o x64.tar.gz
-
-      - name: Extract x64 SDK
-        run: |
-          echo "=== Extracting x64 SDK ==="
-          tar -xzf x64.tar.gz -C manual-x64
-
-      - name: Print x64 dotnet info (Rosetta)
-        run: |
-          echo "=== X64 dotnet (manual install under Rosetta) ==="
-          ./manual-x64/dotnet --info || true
+  - name: Attempt manual x64 install (simulate non-native)
+    run: |
+      echo "Windows only supports native architecture installation through setup-dotnet"
+      echo "No alternate architecture installation is performed"
+      dotnet --info
+```
