@@ -1,25 +1,30 @@
-name: Validate corrupted SDK
+
+name: Repro – setup-dotnet interrupted install (Windows self-hosted)
 
 on:
   workflow_dispatch:
 
 jobs:
-  validate:
+  repro:
     runs-on: [self-hosted]
 
     steps:
-      - name: Inspect SDK directory
+      - name: Ensure SDK version is not already installed
         shell: powershell
         run: |
-          $sdk = "C:\Program Files\dotnet\sdk\8.0.416"
-          if (Test-Path $sdk) {
-            Write-Host "SDK directory exists"
-            Get-ChildItem $sdk -Recurse | Measure-Object
-          } else {
-            Write-Host "SDK directory missing"
+          $sdkPath = "C:\Program Files\dotnet\sdk\8.0.416"
+          if (Test-Path $sdkPath) {
+            Write-Host "Removing existing SDK to force fresh install"
+            Remove-Item -Recurse -Force $sdkPath
           }
+      
+      - name: Install .NET SDK (expected to be interrupted)
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.416
 
-      - name: dotnet restore (expected to fail)
+      # This step usually never runs due to interruption
+      - name: Post-install verification (may be skipped)
         shell: powershell
         run: |
-          dotnet restore
+          dotnet --list-sdks
