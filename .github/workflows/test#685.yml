@@ -1,25 +1,45 @@
-name: Validate corrupted SDK
+name: setup-dotnet-workaround
 
 on:
   workflow_dispatch:
 
 jobs:
-  validate:
+  build:
     runs-on: [self-hosted, windows]
 
     steps:
-      - name: Inspect SDK directory
+      - name: Clean potentially broken .NET SDK
         shell: powershell
         run: |
           $sdk = "C:\Program Files\dotnet\sdk\8.0.416"
           if (Test-Path $sdk) {
-            Write-Host "SDK directory exists"
-            Get-ChildItem $sdk -Recurse | Measure-Object
-          } else {
-            Write-Host "SDK directory missing"
+            Write-Host "Removing existing SDK directory"
+            Remove-Item $sdk -Recurse -Force
           }
 
-      - name: dotnet restore (expected to fail)
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.416
+
+      - name: Validate SDK installation
         shell: powershell
         run: |
-          dotnet restore
+          dotnet --list-sdks
+          $sdk = "C:\Program Files\dotnet\sdk\8.0.416"
+          if (!(Test-Path $sdk)) {
+            Write-Error "SDK directory missing"
+          }
+          $count = (Get-ChildItem $sdk -Recurse | Measure-Object).Count
+          if ($count -lt 1000) {
+            Write-Error "SDK appears incomplete. File count: $count"
+          }
+
+      - name: Create restore path
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path repro
+          dotnet new console -n ReproApp -o repro
+
+      - name: Restore
+        run: dotnet restore repro/ReproApp.csproj
