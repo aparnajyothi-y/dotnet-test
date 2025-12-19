@@ -1,0 +1,42 @@
+name: Repro – setup-dotnet interrupted install (Windows self-hosted)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  repro:
+    runs-on: [self-hosted, windows-15-intel]
+
+    steps:
+      - name: Ensure SDK version is not already installed
+        shell: powershell
+        run: |
+          $sdkPath = "C:\Program Files\dotnet\sdk\8.0.416"
+          if (Test-Path $sdkPath) {
+            Write-Host "Removing existing SDK to force fresh install"
+            Remove-Item -Recurse -Force $sdkPath
+          }
+
+      - name: Start background killer (interrupt runner)
+        shell: powershell
+        run: |
+          Start-Job -ScriptBlock {
+            Start-Sleep -Seconds 15
+            Write-Host "INTERRUPTING RUNNER PROCESS"
+
+            # Stop the runner service (most reliable)
+            Get-Service | Where-Object {
+              $_.Name -like "actions.runner*"
+            } | Stop-Service -Force
+          }
+
+      - name: Install .NET SDK (expected to be interrupted)
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.416
+
+      # This step usually never runs due to interruption
+      - name: Post-install verification (may be skipped)
+        shell: powershell
+        run: |
+          dotnet --list-sdks
