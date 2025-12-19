@@ -5,7 +5,7 @@ on:
 
 jobs:
   repro:
-    runs-on: [self-hosted, windows-15-intel]
+    runs-on: [self-hosted]
 
     steps:
       - name: Ensure SDK version is not already installed
